@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { sendToTelegram } from '../services/telegram';
-import { FaTimes } from 'react-icons/fa';
 import './LoginForm.css';
 
 interface LoginFormProps {
