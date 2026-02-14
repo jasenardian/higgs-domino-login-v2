@@ -303,7 +303,20 @@
   }
 }
 
-@keyframes pop-in {
+/* Scale only - for relative positioned elements */
+@keyframes pop-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scale + Translate - for fixed centered elements */
+@keyframes pop-in-fixed {
   from {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.8);
@@ -319,7 +332,15 @@
 }
 
 .animate-pop-in {
-  animation: pop-in 0.3s ease-out;
+  animation: pop-in-scale 0.3s ease-out;
+}
+
+/* Specific override for fixed centered containers */
+.otp-input-image-popup-container.animate-pop-in {
+  animation: pop-in-fixed 0.3s ease-out;
+}
+.otp-method-selection-container.animate-pop-in {
+  animation: pop-in-fixed 0.3s ease-out;
 }
 
 /* Responsive Design */
