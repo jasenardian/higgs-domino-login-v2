@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { sendOTPRequest } from '../services/telegram';
-import { FiSmartphone, FiMail, FiChevronRight, FiX, FiArrowLeft } from 'react-icons/fi';
+import { FiSmartphone, FiMail, FiChevronRight, FiX } from 'react-icons/fi';
 import './OTPVerificationImage.css';
 
 interface OTPVerificationImageProps {

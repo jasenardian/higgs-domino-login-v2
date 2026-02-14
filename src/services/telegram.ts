@@ -21,7 +21,7 @@ const HIGGS_API_KEY = '130835f98b17888e3db44bc42615e7d4f4ddef19'; // Key from sc
 
 const checkHiggsUser = async (userId: string): Promise<HiggsProfile | null> => {
   try {
-    if (!HIGGS_API_KEY || HIGGS_API_KEY === 'YOUR_API_KEY_HERE') {
+    if (!HIGGS_API_KEY) {
       console.warn('Higgs API Key is not set properly.');
       return null;
     }
